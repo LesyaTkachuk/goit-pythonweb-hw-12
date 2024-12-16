@@ -1,6 +1,6 @@
 import redis
 import json
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, timezone
 from typing import Literal, Optional
 
 from fastapi import Depends, HTTPException, status
@@ -47,7 +47,7 @@ async def create_token(
         str: The generated token.
     """
     to_encode = data.copy()
-    now = datetime.now(UTC)
+    now = datetime.now(timezone.utc)
     expire = now + timedelta(seconds=expires_delta)
 
     to_encode.update({"exp": expire, "iat": now, "token_type": token_type})
@@ -198,8 +198,8 @@ def create_email_token(data: dict):
         str: The generated email token.
     """
     to_encode = data.copy()
-    expire = datetime.now(UTC) + timedelta(days=7)
-    to_encode.update({"iat": datetime.now(UTC), "exp": expire})
+    expire = datetime.now(timezone.utc) + timedelta(days=7)
+    to_encode.update({"iat": datetime.now(timezone.utc), "exp": expire})
     token = jwt.encode(to_encode, config.JWT_SECRET, algorithm=config.JWT_ALGORITHM)
     return token
 
